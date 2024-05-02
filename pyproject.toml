@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "mog-pod-bot"
+version = "0.1.0"
+description = ""
+authors = ["Halimon-Alexandr <154706310+Halimon-Alexandr@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pytelegrambotapi = "^4.16.1"
+pytz = "^2024.1"
+python-decouple = "^3.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

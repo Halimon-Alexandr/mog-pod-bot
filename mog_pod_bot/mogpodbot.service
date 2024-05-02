@@ -1,0 +1,16 @@
+[Unit]
+Description=Telegram bot 'Town Wars'
+After=syslog.target
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/mog-pod-bot/mog_pod_bot
+Environment="PATH=/home/ubuntu/mog-pod-bot/.venv/bin:$PATH"
+ExecStart=/home/ubuntu/mog-pod-bot/.venv/bin/python3 /home/ubuntu/mog-pod-bot/mog_pod_bot/main.py
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
