@@ -1,4 +1,4 @@
-from modules.schedule import workday, weekend, bus_arrival_times
+from modules.schedule import workday, weekend, bus_arrival_times, special_holidays, holiday
 import pytz
 from datetime import datetime, date, timedelta
 
@@ -14,6 +14,8 @@ class Searcher:
 
     workday_schedule = sorted(workday)
     weekend_schedule = sorted(weekend)
+    holidays_schedule = sorted(holiday)
+    special_holidays = special_holidays
     bus_arrival_times = bus_arrival_times
     interaction_count = 0
     last_visit = None
@@ -25,6 +27,21 @@ class Searcher:
             self.username = "Без імені"
         else:
             self.username = username
+
+
+    def load_schedule(self):
+        today = datetime.now(kiev_timezone).date()
+        # Перевіряємо, чи сьогоднішній день є в списку святкових днів
+        if today in self.special_holidays:
+            return self.holidays_schedule
+        # Перевіряємо, чи це будній день
+        weekday = today.weekday()
+        is_workday = weekday < 5
+        # Вибираємо графік залежно від того, чи це будній день
+        bus_schedule = self.workday_schedule if is_workday else self.weekend_schedule
+
+        return bus_schedule
+
 
     def bus_schedule_generator(self):
         """Generate bus schedule information based on the current day of the week (workday or weekend) and the provided bus arrival times."""
@@ -42,10 +59,8 @@ class Searcher:
             "Школа № 2",
         }
         change_bus = True
-        weekday = datetime.now(kiev_timezone).weekday()
-        is_workday = weekday < 5
-        bus_schedule = self.workday_schedule if is_workday else self.weekend_schedule
-
+        
+        bus_schedule = self.load_schedule()
         while len(bus_schedule) != index:
             try:
                 current_time = bus_schedule[index]

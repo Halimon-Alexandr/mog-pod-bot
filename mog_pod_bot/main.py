@@ -1,5 +1,5 @@
 from decouple import config
-import modules
+from modules.searcher import Searcher
 import os
 import pickle
 import pytz
@@ -27,7 +27,9 @@ def help_menu():
     )
     help_message += "🔽 Наступний - Перехід до наступного результату пошуку.\n"
     help_message += "👉Основне меню👈 - Повернення до головного меню.\n"
-    help_message += "💬 Допомога - Повна інформація про користування ботом.\n"
+    help_message += (
+        "💬 'Адмін текст повідомлення' - надіслати повідомлення адміністратору бота.\n"
+    )
     return help_message
 
 
@@ -95,6 +97,22 @@ def func(message):
             message.chat.id,
             f"Всього користувачів {len(user_data)}, загальна кількість запитів від останнього перезавантаження {sum_interaction_count}",
         )
+
+    elif "закріпити" in message.text.lower():
+        text = " ".join(message.text.split()[1:])
+        for user_id, user in user_data.items():
+            to_pin = bot.send_message(user_id, text).message_id
+            bot.pin_chat_message(chat_id=user_id, message_id=to_pin)
+
+    elif "адмін" in message.text.lower():
+        global sender_chat_id
+        sender_chat_id = message.chat.id
+        text = " ".join(message.text.split()[1:])
+        bot.send_message(admin, f"{user_data[message.chat.id].username}: {text}")
+
+    elif "відповідь" in message.text.lower():
+        text = " ".join(message.text.split()[1:])
+        bot.send_message(sender_chat_id, f"{user_data[message.chat.id].username}: {text}")
 
     elif message.text == "Список 📖":
         message.text, button_texts = user_data[message.chat.id].find(bus_stop_name="")
@@ -168,12 +186,6 @@ if os.path.exists("user_data.pickle"):
 
     with open("user_data.pickle", "wb") as file:
         pickle.dump(user_data, file)
-
-    if inactive_users:
-        deleted_users_message = "Видалені користувачі:\n"
-        for user_id in inactive_users:
-            deleted_users_message += f"- Користувач з ID {user_id}\n"
-        bot.send_message(admin, deleted_users_message)
 else:
     user_data = {}
 
